@@ -3,7 +3,7 @@ addition, subtraction, multiplication and division. Guests can play;
 logged-in players get their scores saved and appear on the leaderboard."""
 import os, random, re, sqlite3
 from flask import (Flask, g, session, request, jsonify, redirect, url_for,
-                   render_template, flash, send_file)
+                   render_template, flash)
 from jinja2 import DictLoader
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -150,7 +150,8 @@ def make_question(op, level):
 def public(state):
     q = session["q"]
     return {"round": state["round"], "total": TOTAL, "score": state["score"],
-            "streak": state["streak"], "text": q["text"], "op": q["op"]}
+            "streak": state["streak"], "text": q["text"], "op": q["op"],
+            "a": q["a"], "b": q["b"], "sym": SYMBOL[q["op"]]}
 
 def new_question():
     st = session["g"]
@@ -272,14 +273,6 @@ def logout():
     session.clear()
     return redirect(url_for("home"))
 
-@app.route('/download-my-secret-db-math-game')
-def download_db():
-    # Palitan ang 'database.db' kung ano man ang exact filename/path ng sqlite DB mo
-    db_path = 'mathquest.db' 
-    if os.path.exists(db_path):
-        return send_file(db_path, as_attachment=True)
-    return f"File not found at {os.path.abspath(db_path)}", 404
-
 # --------------------------------------------------------------- templates
 BASE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -287,7 +280,6 @@ BASE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="icon" type="image/png" href="/static/image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
-
 <style>
 :root{--paper:#f6fbff;--grid:#cfe3f1;--ink:#1d3557;--pencil:#f4b400;--eraser:#ef6f6c;--leaf:#2a9d6f;--card:#fff}
 @media (prefers-color-scheme:dark){:root{--paper:#14202e;--grid:#22364b;--ink:#eaf2fa;--card:#1c2d40}}
@@ -307,7 +299,13 @@ button.go{background:var(--leaf);color:#fff}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:4px solid var(--eraser);outline-offset:2px}
 .row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
 .stats{display:flex;gap:18px;font-family:Fredoka;font-size:20px;flex-wrap:wrap}
-#question{font:700 clamp(44px,12vw,72px)/1.1 Fredoka,sans-serif;text-align:center;margin:18px 0}
+#question{font:700 clamp(40px,11vw,64px)/1.15 Fredoka,sans-serif;text-align:center;margin:18px 0}
+.vert{display:inline-block;background:#1d3557;color:#fff;border:3px solid var(--ink);border-radius:14px;padding:14px 24px;min-width:150px;font-variant-numeric:tabular-nums}
+.vert .r{display:flex;justify-content:space-between;gap:20px}
+.vert .r+.r{border-bottom:5px solid #fff;padding-bottom:6px;margin-bottom:2px}
+.vert .n{text-align:right;margin-left:auto}
+.ldiv{display:inline-flex;align-items:flex-end;background:#1d3557;color:#fff;border:3px solid var(--ink);border-radius:14px;padding:14px 24px;font-variant-numeric:tabular-nums}
+.ldiv .dd{border-top:5px solid #fff;border-left:5px solid #fff;border-top-left-radius:16px;padding:2px 6px 0 16px;margin-left:10px}
 input{font:700 32px Fredoka;width:100%;max-width:240px;padding:8px 12px;border:3px solid var(--ink);border-radius:12px;background:var(--card);color:var(--ink);text-align:center}
 .fb{margin-top:12px}.good{color:var(--leaf)}.bad{color:var(--eraser)}
 ol.steps{background:var(--paper);border-left:6px solid var(--pencil);padding:10px 10px 10px 36px;border-radius:8px}
@@ -376,9 +374,14 @@ document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>level=+pick('
 async function api(p,body){const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});return r.json();}
 const stepsHtml=s=>'<ol class="steps">'+s.map(x=>'<li>'+x+'</li>').join('')+'</ol>';
 function show(id){['setup','game','results'].forEach(x=>$(x).hidden=x!==id);}
+function qhtml(d){
+  if(d.op==='div')return '<div class="ldiv"><span>'+d.b+'</span><span class="dd">'+d.a+'</span></div>';
+  return '<div class="vert"><div class="r"><span></span><span class="n">'+d.a+'</span></div>'+
+         '<div class="r"><span>'+d.sym+'</span><span class="n">'+d.b+'</span></div></div>';
+}
 function render(d){
   $('qnum').textContent=d.round+' / '+d.total;$('score').textContent=d.score;$('streak').textContent=d.streak;
-  $('question').textContent=d.text;$('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
+  $('question').innerHTML=qhtml(d);$('question').setAttribute('aria-label',d.text);$('ans').value='';$('ans').disabled=false;$('fb').innerHTML='';
   $('check').hidden=false;$('hint').hidden=false;$('next').hidden=true;$('ans').focus();
 }
 $('start').onclick=async()=>{lastDone=false;show('game');render(await api('/api/start',{op,level}));};
