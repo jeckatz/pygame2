@@ -314,7 +314,7 @@ footer{text-align:center;padding:20px 16px 28px;font:700 18px Fredoka,sans-serif
 <nav>{% if session.get('uid') %}Hi, {{ session['uname'] }}! <a href="{{ url_for('logout') }}">Log out</a>
 {% else %}Playing as guest <a href="{{ url_for('login') }}">Log in</a> <a href="{{ url_for('register') }}">Register</a>{% endif %}</nav></header>
 <main>{% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}{% block body %}{% endblock %}</main>
-<footer>&lt;/&gt; jeckatz</footer>
+<footer>&lt;/&gt; <a href="https://www.facebook.com/xjeckatz/" target="newTab" >Jeckatz</a></footer>
 </body></html>"""
 
 AUTH = """{% extends 'base.html' %}{% block body %}
