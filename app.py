@@ -279,6 +279,7 @@ BASE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <link rel="icon" type="image/png" href="static/image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
+
 <style>
 :root{--paper:#f6fbff;--grid:#cfe3f1;--ink:#1d3557;--pencil:#f4b400;--eraser:#ef6f6c;--leaf:#2a9d6f;--card:#fff}
 @media (prefers-color-scheme:dark){:root{--paper:#14202e;--grid:#22364b;--ink:#eaf2fa;--card:#1c2d40}}
