@@ -226,12 +226,12 @@ def api_answer():
 # -------------------------------------------------------------- pages/auth
 @app.get("/")
 def home():
-    top = db().execute("""SELECT u.username, MAX(s.score) best FROM scores s
+    top = db().execute("""SELECT u.username, SUM(s.score) best, COUNT(*) games FROM scores s
                           JOIN users u ON u.id = s.user_id
                           GROUP BY u.id ORDER BY best DESC LIMIT 5""").fetchall()
     mine = None
     if session.get("uid"):
-        mine = db().execute("SELECT MAX(score) FROM scores WHERE user_id=?",
+        mine = db().execute("SELECT SUM(score) FROM scores WHERE user_id=?",
                             (session["uid"],)).fetchone()[0]
     return render_template("home.html", top=top, mine=mine)
 
@@ -343,7 +343,7 @@ HOME = """{% extends 'base.html' %}{% block body %}
 <div class="row" role="group" aria-label="Level">
 <button data-level="1" class="on">Level 1: small</button><button data-level="2">Level 2: medium</button><button data-level="3">Level 3: big</button></div>
 <button class="go" id="start">Start game</button>
-{% if mine is not none %}<p>Your best score: <b>{{ mine }}</b></p>{% endif %}
+{% if mine is not none %}<p>Your total score: <b>{{ mine }}</b></p>{% endif %}
 </section>
 
 <section class="card" id="game" hidden>
@@ -362,7 +362,8 @@ HOME = """{% extends 'base.html' %}{% block body %}
 <p id="fsave"></p><button class="go" id="again">Play again</button></section>
 
 <section class="card"><h2>Top players</h2>
-{% if top %}<ol>{% for r in top %}<li>{{ r.username }}: {{ r.best }}</li>{% endfor %}</ol>
+<p>Ranked by total points from all games played.</p>
+{% if top %}<ol>{% for r in top %}<li>{{ r.username }}: {{ r.best }} points ({{ r.games }} game{{ "" if r.games == 1 else "s" }})</li>{% endfor %}</ol>
 {% else %}<p>No scores yet. Register and be the first on the board!</p>{% endif %}</section>
 
 <script>
