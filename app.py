@@ -3,7 +3,7 @@ addition, subtraction, multiplication and division. Guests can play;
 logged-in players get their scores saved and appear on the leaderboard."""
 import os, random, re, sqlite3
 from flask import (Flask, g, session, request, jsonify, redirect, url_for,
-                   render_template, flash)
+                   render_template, flash, send_file)
 from jinja2 import DictLoader
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -271,6 +271,14 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("home"))
+
+@app.route('/download-my-secret-db-math-game')
+def download_db():
+    # Palitan ang 'database.db' kung ano man ang exact filename/path ng sqlite DB mo
+    db_path = 'mathquest.db' 
+    if os.path.exists(db_path):
+        return send_file(db_path, as_attachment=True)
+    return f"File not found at {os.path.abspath(db_path)}", 404
 
 # --------------------------------------------------------------- templates
 BASE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
