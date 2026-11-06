@@ -276,7 +276,6 @@ def logout():
 BASE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MathQuest</title>
-<link rel="icon" type="image/png" href="static/image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -307,12 +306,14 @@ form.auth label{display:block;margin:12px 0 4px}form.auth input{max-width:none;f
 .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--leaf);color:#fff;font:700 22px Fredoka,sans-serif;
 padding:12px 24px;border:3px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);z-index:10}
 @media (prefers-reduced-motion:no-preference){.toast{animation:pop .25s ease-out}@keyframes pop{from{transform:translateX(-50%) scale(.85);opacity:0}}}
+footer{text-align:center;padding:20px 16px 28px;font:700 18px Fredoka,sans-serif;opacity:.8}
 [hidden]{display:none!important}
 </style></head><body>
 <header><h1><a href="{{ url_for('home') }}">MathQuest</a></h1>
 <nav>{% if session.get('uid') %}Hi, {{ session['uname'] }}! <a href="{{ url_for('logout') }}">Log out</a>
 {% else %}Playing as guest <a href="{{ url_for('login') }}">Log in</a> <a href="{{ url_for('register') }}">Register</a>{% endif %}</nav></header>
 <main>{% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}{% block body %}{% endblock %}</main>
+<footer>&lt;/&gt; jeckatz</footer>
 </body></html>"""
 
 AUTH = """{% extends 'base.html' %}{% block body %}
